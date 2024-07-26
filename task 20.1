@@ -1,0 +1,60 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+import time
+
+# Specify the path to your ChromeDriver executable
+chrome_driver_path = "C:/Users/visha/OneDrive/Desktop/chromedriver-win64/chromedriver.exe" # Change this to the path where you placed chromedriver
+
+# Setup Chrome options
+chrome_options = Options()
+chrome_options.add_argument("--start-maximized")  # Start maximized
+chrome_options.add_argument("--disable-popup-blocking")  # Ensure popups are not blocked
+
+# Setup WebDriver with the specified path
+service = Service(chrome_driver_path)
+driver = webdriver.Chrome(service=service, options=chrome_options)
+
+try:
+    # Open the website
+    driver.get("https://www.cowin.gov.in/")
+    
+    # Wait for the page to load
+    time.sleep(2)
+    
+    # Click on "FAQ" and "Partners" links
+    faq_link = driver.find_element(By.LINK_TEXT, "FAQ")
+    partners_link = driver.find_element(By.LINK_TEXT, "Partners")
+    
+    # Open the links in new windows
+    driver.execute_script("window.open(arguments[0], '_blank');", faq_link.get_attribute('href'))
+    driver.execute_script("window.open(arguments[0], '_blank');", partners_link.get_attribute('href'))
+    
+    # Switch to the new windows and fetch their IDs
+    handles = driver.window_handles
+    print("Window handles:", handles)
+
+    # Switch to the new windows
+    driver.switch_to.window(handles[1])
+    print("Current window handle (FAQ):", driver.current_window_handle)
+    
+    # Close the FAQ window
+    driver.close()
+    
+    # Switch to the Partners window
+    driver.switch_to.window(handles[2])
+    print("Current window handle (Partners):", driver.current_window_handle)
+    
+    # Close the Partners window
+    driver.close()
+    
+    # Switch back to the home page
+    driver.switch_to.window(handles[0])
+    print("Returned to home page")
+    
+finally:
+    # Wait for a few seconds before quitting to see the result
+    time.sleep(2)
+  
+    driver.quit()
